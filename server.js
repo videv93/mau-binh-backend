@@ -27,6 +27,11 @@ io.on('connection', socket => {
     io.sockets.emit('game update', state)
   });
 
+  socket.on('game move', (state) => {
+    console.log('Game update to: ', state);
+    io.sockets.emit('game move', state)
+  });
+
   socket.on('disconnect', () => {
     console.log('user disconnected')
   })
