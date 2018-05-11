@@ -1,6 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var wagner = require('wagner-core');
+var categorySchema = require('./category').categorySchema;
 
 setupModels(mongoose, wagner);
 
@@ -18,6 +19,8 @@ function setupModels(mongoose, wagner) {
     name: String
   });
   var User = mongoose.model('User', userSchema);
+
+  var Category = mongoose.model('Category', categorySchema);
 
   wagner.factory('User', function() {
     return User;

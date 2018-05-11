@@ -1,60 +1,11 @@
-var mongoose = require('mongoose');
+var express = require('express');
+var wagner = require('wagner-core');
 
-mongoose.connect('mongodb://localhost:27017/test');
+require('./models')(wagner);
 
-var userSchema = new mongoose.Schema({name: String});
+var app = express();
 
-var User = mongoose.model('User', userSchema);
+app.use('/api/v1', require('./api')(wagner));
 
-myUserFunction(User);
-
-function myUserFunction(User) {
-  User.create({name : 'John'}, function(error, doc) {
-    // console.log(require('util').inspect(doc));
-  })
-}
-
-
-var testingSchema = new mongoose.Schema({title: String});
-
-var Testing = mongoose.model('Testing', testingSchema);
-
-var testing = new Testing({title: 'what the fuck!!'});
-testing.save(function(err, data) {
-  if (err) {
-    console.log(err.stack);
-  } else {
-    console.log(data);
-  }
-  // saved
-});
-
-Testing.create({title: 'sffsfs'}, function(err, data) {
-  if (err) {
-    console.log(err.stack);
-  } else {
-    console.log(data);
-  }
-})
-
-
-var tankSchema = new mongoose.Schema({size: String});
-
-var Tank = mongoose.model('Tank', tankSchema);
-
-var small = new Tank({size: 'small'});
-small.save(function(err, small) {
-  if (err) {
-    console.log(err.stack);
-  } else {
-    console.log(small);
-  }
-})
-
-Tank.create({size: 'small123'}, function(err, small) {
-  if (err) {
-    console.log(err.stack);
-  } else {
-    console.log(small);
-  }
-})
+app.listen(3000);
+console.log('Listening on port 3000!');
