@@ -1,40 +1,62 @@
-const express = require('express')
-const http = require('http')
-const socketIO = require('socket.io')
+'use strict';
 
-// our localhost port
-const port = process.env.PORT || 5000
+const Hapi = require('hapi');
+const Routes = require('./config/routes');
+const Bcrypt = require('bcrypt');
+const users = {
+    john: {
+        username: 'john',
+        password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm',   // 'secret'
+        name: 'John Doe',
+        id: '2133d32a'
+    }
+};
+const people = { // our "users database"
+    1: {
+      id: 1,
+      name: 'Jen Jones'
+    }
+};
+const validate = async (request, username, password) => {
 
-const app = express()
+    const user = users[username];
+    if (!user) {
+        return { credentials: null, isValid: false };
+    }
 
-// our server instance
-const server = http.createServer(app)
+    const isValid = await Bcrypt.compare(password, user.password);
+    const credentials = { id: user.id, name: user.name };
 
-// This creates our socket using the instance of the server
-const io = socketIO(server)
+    return { isValid, credentials };
+};
+const validateJwt = async function(decoded, request) {
+    if (!people[decoded.id]) {
+        return { isValid: false };
+    } else {
+        return { isValid: true };
+    }
+}
+const init = async () => {
+    const server = Hapi.server({
+        port: 3000,
+        host: 'localhost'
+    });
+    // await server.register(require('hapi-auth-basic'));
+    await server.register(require('hapi-auth-jwt2'));
+    // server.auth.strategy('simple', 'basic', { validate });
+    server.auth.strategy('jwt', 'jwt', {
+        key: 'NeverShareYourSecret',
+        validate: validateJwt,
+        verifyOptions: { algorithms: [ 'HS256' ]}
+    })
+    server.route(Routes);
+    await server.start();
+    console.log(`Server running at: ${server.info.uri}`);
+};
 
-// This is what the socket.io syntax is like, we will work this later
-io.on('connection', socket => {
-  console.log('New client connected')
+process.on('unhandledRejection', (err) => {
+    console.log(err);
+    process.exit(1);
+});
 
-  socket.on('change color', (color) => {
-    console.log('Color Changed to: ', color);
-    io.sockets.emit('change color', color)
-  });
-
-  socket.on('game update', (state) => {
-    console.log('Game update to: ', state);
-    io.sockets.emit('game update', state)
-  });
-
-  socket.on('game move', (state) => {
-    console.log('Game update to: ', state);
-    io.sockets.emit('game move', state)
-  });
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected')
-  })
-})
-
-server.listen(port, () => console.log(`Listening on port ${port}`))
+init();

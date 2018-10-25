@@ -5,18 +5,30 @@
   "license": "MIT",
   "dependencies": {
     "assert": "^1.4.1",
+    "bcrypt": "^3.0.2",
+    "dotenv": "^6.1.0",
     "express": "^4.16.3",
     "global": "^4.3.2",
+    "hapi": "^17.6.0",
+    "hapi-auth-basic": "^5.0.0",
+    "hapi-auth-jwt2": "^8.1.0",
     "http-status": "^1.1.0",
+    "knex": "^0.15.2",
     "mocha": "^5.1.1",
     "mongodb": "^3.0.8",
     "mongoose": "^5.0.18",
+    "mysql": "^2.16.0",
     "socket.io": "^2.1.0",
     "socket.io-client": "^2.1.0",
     "superagent": "^3.8.3",
     "wagner-core": "^0.2.0"
   },
   "scripts": {
-    "test": "mocha ./express/test.js"
+    "test": "mocha ./express/test.js",
+    "start": "node server",
+    "dev": "nodemon --exec 'npm start'"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.4"
   }
 }
